@@ -13,19 +13,27 @@ RUN apt-get update && apt-get install -y \
     libboost-dev libboost-filesystem-dev libboost-thread-dev libboost-system-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install nanoflann manually (header-only library)
+# Install nanoflann with CMake compatibility (header-only library)
 WORKDIR /opt
 RUN git clone https://github.com/jlblancoc/nanoflann.git && \
     mkdir -p /usr/local/include/nanoflann && \
-    cp -r nanoflann/include/nanoflann.hpp /usr/local/include/nanoflann/
+    cp -r nanoflann/include/nanoflann.hpp /usr/local/include/nanoflann && \
+    mkdir -p /usr/local/lib/cmake/nanoflann && \
+    echo "include(CMakeFindDependencyMacro)" > /usr/local/lib/cmake/nanoflann/nanoflannConfig.cmake && \
+    echo "add_library(nanoflann INTERFACE)" >> /usr/local/lib/cmake/nanoflann/nanoflannConfig.cmake && \
+    echo "target_include_directories(nanoflann INTERFACE /usr/local/include)" >> /usr/local/lib/cmake/nanoflann/nanoflannConfig.cmake
 
+# Install Python dependencies
 RUN pip3 install numpy
+
+# Set Boost and nanoflann CMake paths
+ENV CMAKE_PREFIX_PATH="/usr/local/lib/cmake:/usr/lib/x86_64-linux-gnu/cmake"
 
 # Build AliceVision
 WORKDIR /opt
 RUN git clone --recursive https://github.com/alicevision/AliceVision.git
 WORKDIR /opt/AliceVision
-RUN mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release && make -j$(nproc)
+RUN mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH && make -j$(nproc)
 
 # Build Meshroom
 WORKDIR /opt
@@ -46,13 +54,14 @@ RUN apt-get update && apt-get install -y \
     qt5-default libqt5svg5 python3 python3-pip libboost-all-dev \
     unzip curl awscli && apt-get clean
 
+# Install Python dependencies for runtime
 RUN pip3 install numpy boto3
 
 # Entrypoint script to manage S3 and Meshroom
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Copy Meshroom & AliceVision binaries
+# Copy Meshroom & AliceVision binaries from build stage
 COPY --from=builder /opt/meshroom /opt/meshroom
 COPY --from=builder /opt/AliceVision/build/install /opt/alicevision
 
