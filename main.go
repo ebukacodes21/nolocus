@@ -20,7 +20,7 @@ const (
 	region     = "us-east-1"
 	profile    = "peerbill"
 	runpodAPI  = "https://api.runpod.io/v1/jobs"
-	apiKey     = "your_runpod_api_key" // TODO: replace
+	apiKey     = ""
 )
 
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
