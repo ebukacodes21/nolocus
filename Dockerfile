@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     libglew-dev libpng-dev libjpeg-dev libtiff-dev libraw-dev \
     python3 python3-pip libboost-all-dev libopencv-dev \
     qtbase5-dev qtdeclarative5-dev libqt5svg5-dev libatlas-base-dev \
+    libopenexr-dev openexr \
     && apt-get clean
 
 RUN pip3 install numpy
