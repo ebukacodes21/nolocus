@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     qtbase5-dev qtdeclarative5-dev libqt5svg5-dev libatlas-base-dev \
     libopenexr-dev libilmbase-dev \
     libboost-dev libboost-filesystem-dev libboost-thread-dev libboost-system-dev \
+    libopenimageio-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install nanoflann with CMake compatibility (header-only library)
@@ -27,7 +28,7 @@ RUN git clone https://github.com/jlblancoc/nanoflann.git && \
 RUN pip3 install numpy
 
 # Set Boost and nanoflann CMake paths
-ENV CMAKE_PREFIX_PATH="/usr/local/lib/cmake:/usr/lib/x86_64-linux-gnu/cmake"
+ENV CMAKE_PREFIX_PATH="/usr/local/lib/cmake:/usr/lib/x86_64-linux-gnu/cmake:/usr/local/lib/cmake/nanoflann"
 
 # Build AliceVision
 WORKDIR /opt
@@ -52,7 +53,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx libglew2.1 libpng16-16 libjpeg8 libtiff5 libraw19 \
     qt5-default libqt5svg5 python3 python3-pip libboost-all-dev \
-    unzip curl awscli && apt-get clean
+    unzip curl awscli libopenimageio-dev && apt-get clean
 
 # Install Python dependencies for runtime
 RUN pip3 install numpy boto3
