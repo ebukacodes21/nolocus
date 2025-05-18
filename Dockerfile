@@ -5,12 +5,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
-    git cmake build-essential libgl1-mesa-dev \
-    libglew-dev libpng-dev libjpeg-dev libtiff-dev libraw-dev \
+    git cmake build-essential pkg-config ninja-build \
+    libgl1-mesa-dev libglew-dev libpng-dev libjpeg-dev libtiff-dev libraw-dev \
     python3 python3-pip libboost-all-dev libopencv-dev \
     qtbase5-dev qtdeclarative5-dev libqt5svg5-dev libatlas-base-dev \
-    libopenexr-dev libimath-dev libboost-json-dev \
-    && apt-get clean
+    libopenexr-dev libimath-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* 
 
 RUN pip3 install numpy
 
