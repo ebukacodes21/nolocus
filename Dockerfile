@@ -1,5 +1,5 @@
 # === Stage 1: Build AliceVision + Meshroom ===
-FROM nvidia/cuda:11.7.1-devel-ubuntu20.04 AS builder
+FROM nvidia/cuda:11.7.1-devel-ubuntu22.04 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
     libglew-dev libpng-dev libjpeg-dev libtiff-dev libraw-dev \
     python3 python3-pip libboost-all-dev libopencv-dev \
     qtbase5-dev qtdeclarative5-dev libqt5svg5-dev libatlas-base-dev \
-    libopenexr-dev openexr \
+    libopenexr-dev libimath-dev libboost-json-dev \
     && apt-get clean
 
 RUN pip3 install numpy
