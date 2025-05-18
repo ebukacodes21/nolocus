@@ -10,8 +10,14 @@ RUN apt-get update && apt-get install -y \
     python3 python3-pip libboost-all-dev libopencv-dev \
     qtbase5-dev qtdeclarative5-dev libqt5svg5-dev libatlas-base-dev \
     libopenexr-dev libilmbase-dev \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    libboost-dev libboost-filesystem-dev libboost-thread-dev libboost-system-dev \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install nanoflann manually (header-only library)
+WORKDIR /opt
+RUN git clone https://github.com/jlblancoc/nanoflann.git && \
+    mkdir -p /usr/local/include/nanoflann && \
+    cp -r nanoflann/include/nanoflann.hpp /usr/local/include/nanoflann/
 
 RUN pip3 install numpy
 
