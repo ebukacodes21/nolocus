@@ -3,7 +3,7 @@ FROM nvidia/cuda:11.7.1-devel-ubuntu20.04 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Dependencies
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     git cmake build-essential libgl1-mesa-dev \
     libglew-dev libpng-dev libjpeg-dev libtiff-dev libraw-dev \
@@ -36,14 +36,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx libglew2.1 libpng16-16 libjpeg8 libtiff5 libraw19 \
     qt5-default libqt5svg5 python3 python3-pip libboost-all-dev \
-    unzip curl golang-go awscli && apt-get clean
+    unzip curl awscli && apt-get clean
 
 RUN pip3 install numpy boto3
-
-# Optional: Compile s3_upload.go (only if needed)
-COPY s3_upload.go /app/s3_upload.go
-WORKDIR /app
-RUN go build -o s3_upload s3_upload.go
 
 # Entrypoint script to manage S3 and Meshroom
 COPY entrypoint.sh /entrypoint.sh
@@ -52,10 +47,8 @@ RUN chmod +x /entrypoint.sh
 # Copy Meshroom & AliceVision binaries
 COPY --from=builder /opt/meshroom /opt/meshroom
 COPY --from=builder /opt/AliceVision/build/install /opt/alicevision
-ENV PATH="/opt/alicevision/bin:$PATH"
 
-# Working dir for Meshroom
+ENV PATH="/opt/alicevision/bin:$PATH"
 WORKDIR /opt/meshroom
 
-# Final entrypoint
 ENTRYPOINT ["/entrypoint.sh"]
