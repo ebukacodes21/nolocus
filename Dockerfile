@@ -3,7 +3,7 @@ FROM nvidia/cuda:11.7.1-devel-ubuntu22.04 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install dependencies
+# Install dependencies including Boost and OpenImageIO
 RUN apt-get update && apt-get install -y \
     git cmake build-essential pkg-config ninja-build \
     libgl1-mesa-dev libglew-dev libpng-dev libjpeg-dev libtiff-dev libraw-dev \
@@ -13,6 +13,16 @@ RUN apt-get update && apt-get install -y \
     libboost-dev libboost-filesystem-dev libboost-thread-dev libboost-system-dev \
     libopenimageio-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Manually install OpenImageIO to ensure all necessary binaries are available
+WORKDIR /opt
+RUN git clone https://github.com/OpenImageIO/oiio.git && \
+    cd oiio && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    make -j$(nproc) && \
+    make install
 
 # Install nanoflann with CMake compatibility (header-only library)
 WORKDIR /opt
@@ -27,8 +37,9 @@ RUN git clone https://github.com/jlblancoc/nanoflann.git && \
 # Install Python dependencies
 RUN pip3 install numpy
 
-# Set Boost and nanoflann CMake paths
-ENV CMAKE_PREFIX_PATH="/usr/local/lib/cmake:/usr/lib/x86_64-linux-gnu/cmake:/usr/local/lib/cmake/nanoflann"
+# Set Boost and nanoflann CMake paths and Boost_ROOT variable
+ENV BOOST_ROOT=/usr/include/boost
+ENV CMAKE_PREFIX_PATH="/usr/local/lib/cmake:/usr/lib/x86_64-linux-gnu/cmake:/usr/local/lib/cmake/nanoflann:/usr/local/lib/cmake/oiio"
 
 # Build AliceVision
 WORKDIR /opt
@@ -49,7 +60,7 @@ FROM nvidia/cuda:11.7.1-runtime-ubuntu20.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Runtime dependencies
+# Runtime dependencies including OpenImageIO and Boost
 RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx libglew2.1 libpng16-16 libjpeg8 libtiff5 libraw19 \
     qt5-default libqt5svg5 python3 python3-pip libboost-all-dev \
