@@ -1,42 +1,30 @@
-# ---- Build Stage ----
-FROM nvidia/cuda:11.7.1-devel-ubuntu22.04 AS builder
+# NVIDIA CUDA-enabled GPU
+FROM nvidia/cuda:11.7.1-runtime-ubuntu22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    git cmake build-essential libpng-dev libjpeg-dev libtiff-dev libgl1-mesa-glx \
-    libglew-dev libboost-all-dev python3 python3-pip libopencv-dev wget unzip \
-    qtbase5-dev qtdeclarative5-dev libqt5svg5-dev libopenexr-dev libraw-dev \
-    exiftool \
-    && rm -rf /var/lib/apt/lists/*
+    wget unzip python3 python3-pip git libgl1 libglib2.0-0 libxrender1 libsm6 libxext6 exiftool && \
+    rm -rf /var/lib/apt/lists/*
 
-# Clone Meshroom
-WORKDIR /opt
-RUN git clone --recursive https://github.com/alicevision/meshroom.git
-
-# Build AliceVision engine
-WORKDIR /opt/meshroom
-RUN ./build.sh
-
-# Install Python packages for depth + geo
+# Install Python dependencies
 RUN pip3 install torch torchvision opencv-python exifread matplotlib \
     git+https://github.com/isl-org/MiDaS.git
 
-# ---- Runtime Stage ----
-FROM nvidia/cuda:11.7.1-runtime-ubuntu22.04
+# Download Meshroom prebuilt binaries
+WORKDIR /opt
+RUN wget https://github.com/alicevision/meshroom/releases/download/2023.3.0/Meshroom-2023.3.0-linux.zip && \
+    unzip Meshroom-2023.3.0-linux.zip && \
+    rm Meshroom-2023.3.0-linux.zip
 
-# Copy Meshroom and Python env
-COPY --from=builder /opt/meshroom /opt/meshroom
+ENV PATH="/opt/Meshroom-2023.2.0-linux:${PATH}"
 
-# Copy MiDaS model and helper script
-COPY --from=builder /root/.cache /root/.cache
-COPY --from=builder /usr/local/lib/python3.10 /usr/local/lib/python3.10
-COPY --from=builder /usr/local/bin /usr/local/bin
-
-# Optional: copy helper script to do depth + geo
+# Copy custom preprocessing script (optional)
 COPY preprocessor.py /app/preprocessor.py
 
+# Mount volume at /data
 WORKDIR /data
 
-# Default entrypoint is Meshroom, but can be overridden
-ENTRYPOINT ["/opt/meshroom/meshroom_batch"]
+# Default command to run Meshroom
+ENTRYPOINT ["meshroom_batch"]
