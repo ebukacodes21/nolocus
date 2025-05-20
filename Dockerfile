@@ -14,10 +14,10 @@ RUN pip3 install torch torchvision opencv-python exifread matplotlib
 WORKDIR /opt
 RUN git clone https://github.com/isl-org/MiDaS.git
 
-# Download Meshroom prebuilt binaries
-RUN wget https://github.com/alicevision/meshroom/releases/download/2023.3.0/Meshroom-2023.3.0-linux.zip && \
-    unzip Meshroom-2023.3.0-linux.zip && \
-    rm Meshroom-2023.3.0-linux.zip
+# Download and extract Meshroom prebuilt binaries (Linux)
+RUN wget https://github.com/alicevision/meshroom/releases/download/v2023.3.0/Meshroom-2023.3.0-linux.tar.gz && \
+    tar -xzf Meshroom-2023.3.0-linux.tar.gz && \
+    rm Meshroom-2023.3.0-linux.tar.gz
 
 ENV PATH="/opt/Meshroom-2023.3.0-linux:${PATH}"
 
