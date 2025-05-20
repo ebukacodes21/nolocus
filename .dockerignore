@@ -1,0 +1,17 @@
+.git
+.gitignore
+*.pyc
+__pycache__/
+*.log
+*.tar.gz
+*.zip
+
+*.egg-info/
+*.egg/
+*.pkl
+
+data/
+videos/
+images/
+checkpoints/
+weights/
