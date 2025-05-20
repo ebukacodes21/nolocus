@@ -23,7 +23,7 @@ ENV PATH="/opt/Meshroom-2023.3.0-linux:${PATH}"
 
 # Download weights
 RUN mkdir -p /opt/MiDaS/weights && \
-    wget -O /opt/MiDaS/weights/dpt_large-midas-2f21e586.pt https://github.com/isl-org/MiDaS/releases/download/v3_1/dpt_large-midas-2f21e586.pt
+    wget -O /opt/MiDaS/weights/dpt_beit_large_384.pt https://github.com/isl-org/MiDaS/releases/download/v3_1/dpt_beit_large_384.pt
 
 # Copy preprocessing script (optional)
 COPY preprocessor.py /app/preprocessor.py
