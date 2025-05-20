@@ -1,4 +1,4 @@
-name: Deploy Meshroom Image to AWS ECR
+name: Deploy image AWS ECR
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    name: Build and Push Docker Image to ECR
+    name: Build and Push Image to ECR
     runs-on: ubuntu-latest
 
     steps:
@@ -27,7 +27,7 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Build and push Docker image to ECR
+    - name: Build and push image to Amazon ECR
       uses: docker/build-push-action@v5
       with:
         context: .
